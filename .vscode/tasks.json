@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run host",
+            "type": "shell",
+            "command": "'/d/prog/unity/project/Build/New_Unity_Project/New Unity Project.exe' -mlapi host"
+        },
+        {
+            "label": "run client",
+            "type": "shell",
+            "command": "'/d/prog/unity/project/Build/New_Unity_Project/New Unity Project.exe' -mlapi client"
+        }
+    ],
+}

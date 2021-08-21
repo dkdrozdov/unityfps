@@ -8,13 +8,11 @@ public class NetworkCommandLine : MonoBehaviour
 
     void Start()
     {
-        netManager = GetComponentInParent<NetworkManager>();
-
         if (Application.isEditor)
         {
-            netManager.StartClient();
             return;
         }
+        netManager = GetComponentInParent<NetworkManager>();
 
         var args = GetCommandlineArgs();
 
