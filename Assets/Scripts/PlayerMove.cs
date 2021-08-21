@@ -13,11 +13,8 @@ public class PlayerMove : NetworkBehaviour
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
-    NetworkVariableBool isGrounded = new NetworkVariableBool(new NetworkVariableSettings
-    {
-        WritePermission = NetworkVariablePermission.ServerOnly,
-        ReadPermission = NetworkVariablePermission.Everyone
-    });
+    [SerializeField]
+    bool isGrounded;
     NetworkVariableBool isRunning = new NetworkVariableBool(new NetworkVariableSettings
     {
         WritePermission = NetworkVariablePermission.OwnerOnly,
@@ -43,6 +40,27 @@ public class PlayerMove : NetworkBehaviour
         ReadPermission = NetworkVariablePermission.Everyone
     });
 
+    // void isGroundedValueChanged(bool prevValue, bool newValue)
+    // {
+    //     isGrounded.Value = newValue;
+    // }
+    // void isGroundedListenChanges()
+    // {
+    //     isGrounded.OnValueChanged += isGroundedValueChanged;
+    // }
+    // void isGroundedStopListen()
+    // {
+    //     isGrounded.OnValueChanged -= isGroundedValueChanged;
+    // }
+
+    // private void OnEnable()
+    // {
+    //     isGroundedListenChanges();
+    // }
+    // private void OnDisable()
+    // {
+    //     isGroundedStopListen();
+    // }
     private void Awake()
     {
         PlayerInitializer playerInitializer = gameObject.GetComponent<PlayerInitializer>();
@@ -59,15 +77,15 @@ public class PlayerMove : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (IsServer)
-        {
-            isGrounded.Value = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        }
+        // if (IsServer)
+        // {
+        // }
         if (IsOwner)
         {
+            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
             float x = Input.GetAxis("Horizontal");
             float z = Input.GetAxis("Vertical");
-            isStandingStill.Value = ((x == 0) && (z == 0) && isGrounded.Value);
+            isStandingStill.Value = ((x == 0) && (z == 0) && isGrounded);
 
             Vector3 move = transform.right * x + transform.forward * z;
             if (Input.GetButtonDown("Run") && energy.AbleToRun())
@@ -81,15 +99,15 @@ public class PlayerMove : NetworkBehaviour
 
             controller.Move(move * (currentSpeed.Value + (isRunning.Value ? runBonusSpeed : 0)) * Time.deltaTime);
 
-            if (isGrounded.Value && gravityVelocity.Value < 0)
+            if (isGrounded && gravityVelocity.Value < 0)
             {
                 gravityVelocity.Value = -4f;
             }
-            if (!isGrounded.Value)
+            if (!isGrounded)
             {
                 gravityVelocity.Value += gravity * Time.deltaTime;
             }
-            if (Input.GetButtonDown("Jump") && isGrounded.Value && energy.AbleToJump())
+            if (Input.GetButtonDown("Jump") && isGrounded && energy.AbleToJump())
             {
                 gravityVelocity.Value = Mathf.Sqrt(jumpHeight * (-2f) * gravity);
                 OnJumped?.Invoke();
@@ -103,7 +121,7 @@ public class PlayerMove : NetworkBehaviour
     }
     public bool IsGrounded()
     {
-        return isGrounded.Value;
+        return isGrounded;
     }
     public bool IsStandingStill()
     {
