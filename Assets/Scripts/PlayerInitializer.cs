@@ -21,7 +21,7 @@ public class PlayerInitializer : NetworkBehaviour
         playerMove = player.AddComponent<PlayerMove>();
         if (IsOwner)
         {
-            //uiManager = Instantiate(uiPrefab, Vector3.zero, Quaternion.identity).GetComponent<UIManager>();
+            uiManager = Instantiate(uiPrefab, Vector3.zero, Quaternion.identity).GetComponent<UIManager>();
             playerMove.SetEnergy(player.AddComponent<PlayerEnergy>());
         }
         else

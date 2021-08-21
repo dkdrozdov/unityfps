@@ -12,7 +12,7 @@ public class NetworkCommandLine : MonoBehaviour
 
         if (Application.isEditor)
         {
-            netManager.StartHost();
+            netManager.StartClient();
             return;
         }
 
