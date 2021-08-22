@@ -35,6 +35,15 @@ public class MouseLook : NetworkBehaviour
 
             transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
             playerParent.Rotate(Vector3.up * mouseX);
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+            }
         }
     }
 }
