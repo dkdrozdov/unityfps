@@ -4,24 +4,29 @@ using UnityEngine;
 using MLAPI;
 using MLAPI.NetworkVariable;
 
-public class Energy : NetworkBehaviour
+public class Energy : Stat
 {
     protected PlayerMove playerMove;
-    protected float maxEnergy = 100f;
-    protected float currentEnergy = 100f;
     protected float runCost = 30f;
     protected float jumpCost = 20f;
     protected float restoringSpeed = 15f;
     protected float baseRestingRestoringBonus = 30f;
     protected float currentRestingRestoringBonus = 30f;
 
+    public void SetPlayerMove(PlayerMove pm)
+    {
+        playerMove = pm;
+        playerMove.OnJumped += Jump;
+    }
     protected virtual void Awake()
     {
         PlayerInitializer playerInitializer = gameObject.GetComponent<PlayerInitializer>();
         playerMove = playerInitializer.GetPlayerMove();
     }
-
-
+    private void OnDisable()
+    {
+        playerMove.OnJumped -= Jump;
+    }
 
     // Update is called once per frame
     void Update()
@@ -45,23 +50,18 @@ public class Energy : NetworkBehaviour
 
     protected virtual void ModifyValue(float value)
     {
-        currentEnergy += value;
-        currentEnergy = Mathf.Clamp(currentEnergy, 0f, maxEnergy);
+        currentValue.Value += value;
+        currentValue.Value = Mathf.Clamp(currentValue.Value, 0f, maxValue);
+        base.OnChange(currentValue.Value);
     }
 
     //  Read methods
-
-    public float GetValue()
-    {
-        return currentEnergy;
-    }
-
     public bool AbleToJump()
     {
-        return currentEnergy - jumpCost >= 0;
+        return currentValue.Value - jumpCost >= 0;
     }
     public bool AbleToRun()
     {
-        return currentEnergy - runCost * Time.deltaTime >= 0;
+        return currentValue.Value - runCost * Time.deltaTime >= 0;
     }
 }

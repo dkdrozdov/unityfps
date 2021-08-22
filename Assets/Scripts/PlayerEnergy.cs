@@ -13,19 +13,11 @@ public class PlayerEnergy : Energy
         playerMove = playerInitializer.GetPlayerMove();
         energyBar = playerInitializer.GetUI().GetEnergyBar();
     }
-    private void OnEnable()
-    {
-        playerMove.OnJumped += Jump;
-    }
-    private void OnDisable()
-    {
-        playerMove.OnJumped -= Jump;
-    }
     void Start()
     {
         if (IsOwner)
         {
-            energyBar.SetMaxValue(maxEnergy);
+            energyBar.SetMaxValue(maxValue);
         }
     }
     protected override void ModifyValue(float value)
@@ -33,11 +25,7 @@ public class PlayerEnergy : Energy
         if (IsOwner)
         {
             base.ModifyValue(value);
-            energyBar.SetValue(currentEnergy);
-        }
-        else
-        {
-            Debug.LogError("Called PlayerEnergy.ModifyValue() on non-owner application!", this);
+            energyBar.SetValue(currentValue.Value);
         }
     }
 }

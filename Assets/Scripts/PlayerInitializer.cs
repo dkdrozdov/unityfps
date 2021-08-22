@@ -5,35 +5,36 @@ using MLAPI;
 public class PlayerInitializer : NetworkBehaviour
 {
     [SerializeField] float maxHP = 100f;
-    public CharacterController characterController;
-    public Transform groundCheck;
-    public PlayerMove playerMove;
-    public GameObject player;
-    public GameObject uiPrefab;
-    public IDamageable damageable;
-    public Health health;
-    UIManager uiManager;
+    [SerializeField] float maxEnergy = 100f;
+    [SerializeField] CharacterController characterController;
+    [SerializeField] Transform groundCheck;
+    [SerializeField] PlayerMove playerMove;
+    [SerializeField] GameObject player;
+    [SerializeField] GameObject uiPrefab;
+    [SerializeField] IDamageable damageable;
+    [SerializeField] Health health;
+    [SerializeField] Energy energy;
+    [SerializeField] UIManager uiManager;
 
-    private void Awake()
-    {
-
-    }
-    // Start is called before the first frame update
     void Start()
     {
-        // playerMove = player.AddComponent<PlayerMove>();
         if (IsOwner)
         {
             InitializeUIManager();
-            // playerMove.SetEnergy(player.AddComponent<PlayerEnergy>());
             InitializeHealth();
             InitializeDamageable();
+            InitializeEnergy();
         }
         else
         {
             playerMove.SetEnergy(player.AddComponent<Energy>());
             damageable.SetHealthComponent(player.AddComponent<Health>());
         }
+    }
+    void InitializePlayerMove()
+    {
+        playerMove = player.AddComponent<PlayerMove>();
+        playerMove.SetEnergy(energy);
     }
     void InitializeUIManager()
     {
@@ -44,17 +45,21 @@ public class PlayerInitializer : NetworkBehaviour
         damageable = player.AddComponent<Destructible>();
         damageable.SetHealthComponent(health);
     }
+    void InitializeEnergy()
+    {
+        energy = player.AddComponent<Energy>();
+        energy.SetMaxValue(maxEnergy);
+        energy.SetValue(maxEnergy);
+        uiManager.GetEnergyBar().SetStat(energy);
+        InitializePlayerMove();
+        energy.SetPlayerMove(playerMove);
+    }
     void InitializeHealth()
     {
         health = player.AddComponent<Health>();
         health.SetMaxValue(maxHP);
         health.SetValue(maxHP);
         uiManager.GetHealthBar().SetStat(health);
-    }
-    // Update is called once per frame
-    void Update()
-    {
-
     }
     public UIManager GetUI()
     {
