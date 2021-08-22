@@ -5,13 +5,14 @@ using UnityEngine.UI;
 
 public class StatBar : MonoBehaviour
 {
+    Stat stat;
     public Slider slider;
     // Start is called before the first frame update
     void Start()
     {
 
     }
-    
+
     public void SetMaxValue(float newValue)
     {
         slider.maxValue = newValue;
@@ -25,5 +26,20 @@ public class StatBar : MonoBehaviour
     void Update()
     {
 
+    }
+    public void SetStat(Stat s)
+    {
+        stat = s;
+        SetMaxValue(stat.GetMaxValue());
+        SetValue(stat.GetValue());
+        SubscribeOnValueChange(s);
+    }
+    void SubscribeOnValueChange(Stat s)
+    {
+        s.OnValueChange += SetValue;
+    }
+    private void OnDisable()
+    {
+        stat.OnValueChange -= SetValue;
     }
 }

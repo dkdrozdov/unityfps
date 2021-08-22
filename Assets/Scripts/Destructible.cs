@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MLAPI;
 
-public class Destructible : MonoBehaviour, IDamageable
+public class Destructible : NetworkBehaviour, IDamageable
 {
     public Health health;
     Rigidbody rootRigidbody;
@@ -34,5 +35,9 @@ public class Destructible : MonoBehaviour, IDamageable
     void Update()
     {
 
+    }
+    public void SetHealthComponent(Health h)
+    {
+        health = h;
     }
 }

@@ -4,15 +4,27 @@ using UnityEngine;
 using UnityEngine.UI;
 public class PlayerHealth : Health
 {
-    public StatBar hpBar;
-    public PlayerHealth(float max) : base(max) { }
-    void Start()
+    private StatBar hpBar;
+    protected override void Start()
     {
-        hpBar.SetMaxValue(maxHealth);
+        base.Start();
+        hpBar.SetMaxValue(maxValue);
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            TakeDamage(10f);
+        }
     }
     override public void TakeDamage(float damage)
     {
         base.TakeDamage(damage);
-        hpBar.SetValue(currentHealth);
+        hpBar.SetValue(currentValue.Value);
+    }
+
+    public void SetStatBar(StatBar bar)
+    {
+        hpBar = bar;
     }
 }

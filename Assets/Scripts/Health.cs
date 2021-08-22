@@ -1,25 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MLAPI;
+using MLAPI.NetworkVariable;
+using MLAPI.Messaging;
 
-public class Health : MonoBehaviour
+public class Health : Stat
 {
-    public float maxHealth;
-    public float currentHealth;
-    
-    public Health(float max)
+
+    protected virtual void Start()
     {
-        maxHealth = max;
-        currentHealth = max;
+        currentValue.Value = maxValue;
     }
 
     public virtual void TakeDamage(float damage)
     {
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+        currentValue.Value -= damage;
+        currentValue.Value = Mathf.Clamp(currentValue.Value, 0f, maxValue);
+        base.OnChange(currentValue.Value);
     }
-    public virtual float GetValue()
+
+    private void Update()
     {
-        return currentHealth;
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            TakeDamage(10f);
+        }
     }
 }
