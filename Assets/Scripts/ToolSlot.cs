@@ -15,13 +15,14 @@ public class ToolSlot : MonoBehaviour
     public GameObject tool;
     public Image icon;
     public Image panelImage;
-    private void OnEnable()
+    ToolUser toolUser;
+    public void SetToolUser(ToolUser toolUser)
     {
-        ToolUser.OnSelect += SelectResponse;
+        toolUser.OnSelect += SelectResponse;
     }
     private void OnDisable()
     {
-        ToolUser.OnSelect -= SelectResponse;
+        toolUser.OnSelect -= SelectResponse;
     }
     public void SetTool(GameObject tool)
     {

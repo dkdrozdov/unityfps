@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Equipment : MonoBehaviour
+using MLAPI;
+public class Equipment : NetworkBehaviour
 {
     public MeleeWeapon melee;
 

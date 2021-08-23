@@ -15,6 +15,7 @@ public class PlayerInitializer : NetworkBehaviour
     [SerializeField] Health health;
     [SerializeField] Energy energy;
     [SerializeField] UIManager uiManager;
+    [SerializeField] ToolUser toolUser;
 
     void Start()
     {
@@ -25,6 +26,7 @@ public class PlayerInitializer : NetworkBehaviour
         InitializeDamageable();
         InitializeEnergy();
         InitializePlayerMove();
+        InitializeToolUser();
     }
     void GetPlayerComponents()
     {
@@ -32,6 +34,13 @@ public class PlayerInitializer : NetworkBehaviour
         damageable = player.GetComponent<Destructible>();
         energy = player.GetComponent<Energy>();
         playerMove = player.GetComponent<PlayerMove>();
+    }
+    void InitializeToolUser()
+    {
+        if (IsOwner)
+        {
+            uiManager.SetToolUser(toolUser);
+        }
     }
     void InitializePlayerMove()
     {

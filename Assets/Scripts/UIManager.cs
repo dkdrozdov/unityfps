@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
 {
     public StatBar energyPanel;
     public StatBar healthPanel;
+    public ToolSlot[] toolSlots;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,6 +16,13 @@ public class UIManager : MonoBehaviour
     void Update()
     {
 
+    }
+    public void SetToolUser(ToolUser user)
+    {
+        foreach (ToolSlot toolSlot in toolSlots)
+        {
+            toolSlot.SetToolUser(user);
+        }
     }
     public StatBar GetEnergyBar()
     {

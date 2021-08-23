@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public abstract class MeleeWeapon : MonoBehaviour, ITool
+using MLAPI;
+public abstract class MeleeWeapon : NetworkBehaviour, ITool
 {
 
     public abstract void Use();

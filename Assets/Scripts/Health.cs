@@ -11,6 +11,5 @@ public class Health : Stat
     {
         float newValue = Mathf.Clamp(GetValue() - damage, 0f, GetMaxValue());
         base.SetValue(newValue);
-        base.OnChange(newValue);
     }
 }

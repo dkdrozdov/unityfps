@@ -47,7 +47,23 @@ public class Stat : NetworkBehaviour
     }
     public void SetValue(float value)
     {
-        currentValue.Value = value;
+        if (IsOwner)
+        {
+            currentValue.Value = value;
+            OnChange(value);
+        }
+        else
+        {
+            SetValueClientRpc(value);
+        }
+    }
+    [ClientRpc]
+    void SetValueClientRpc(float value)
+    {
+        if (IsOwner)
+        {
+            SetValue(value);
+        }
     }
     private void OnEnable()
     {
