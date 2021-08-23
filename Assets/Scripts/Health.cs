@@ -13,12 +13,4 @@ public class Health : Stat
         base.SetValue(newValue);
         base.OnChange(newValue);
     }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TakeDamage(10f);
-        }
-    }
 }

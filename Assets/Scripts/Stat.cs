@@ -7,9 +7,17 @@ using MLAPI.Messaging;
 public class Stat : NetworkBehaviour
 {
     [SerializeField]
-    public NetworkVariableFloat currentValue = new NetworkVariableFloat();
+    protected NetworkVariableFloat currentValue = new NetworkVariableFloat(new NetworkVariableSettings
+    {
+        WritePermission = NetworkVariablePermission.OwnerOnly,
+        ReadPermission = NetworkVariablePermission.Everyone
+    });
     [SerializeField]
-    public NetworkVariableFloat maxValue = new NetworkVariableFloat();
+    protected NetworkVariableFloat maxValue = new NetworkVariableFloat(new NetworkVariableSettings
+    {
+        WritePermission = NetworkVariablePermission.OwnerOnly,
+        ReadPermission = NetworkVariablePermission.Everyone
+    });
     public delegate void ValueChange(float newValue);
     public event ValueChange OnValueChange;
 
@@ -23,7 +31,6 @@ public class Stat : NetworkBehaviour
     }
     protected void InvokeValueChange(float value)
     {
-        Debug.Log("INVOKE!!!!!!!!" + value);
         OnValueChange?.Invoke(value);
     }
     public float GetMaxValue()
@@ -36,35 +43,11 @@ public class Stat : NetworkBehaviour
     }
     public void SetMaxValue(float value)
     {
-        if (IsServer)
-        {
-            maxValue.Value = value;
-        }
-        else
-        {
-            SetMaxValueServerRpc(value);
-        }
+        maxValue.Value = value;
     }
     public void SetValue(float value)
     {
-        if (IsServer)
-        {
-            currentValue.Value = value;
-        }
-        else
-        {
-            SetValueServerRpc(value);
-        }
-    }
-    [ServerRpc(RequireOwnership = false)]
-    protected void SetValueServerRpc(float value)
-    {
-        SetValue(value);
-    }
-    [ServerRpc(RequireOwnership = false)]
-    protected void SetMaxValueServerRpc(float value)
-    {
-        SetMaxValue(value);
+        currentValue.Value = value;
     }
     private void OnEnable()
     {

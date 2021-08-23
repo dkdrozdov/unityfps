@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
 using MLAPI.NetworkVariable;
+using MLAPI.Messaging;
 
 public class Energy : Stat
 {
-    protected PlayerMove playerMove;
-    protected float runCost = 30f;
-    protected float jumpCost = 20f;
-    protected float restoringSpeed = 15f;
-    protected float baseRestingRestoringBonus = 30f;
-    protected float currentRestingRestoringBonus = 30f;
+    [SerializeField] protected PlayerMove playerMove;
+    [SerializeField] protected float runCost = 30f;
+    [SerializeField] protected float jumpCost = 15f;
+    [SerializeField] protected float restoringSpeed = 15f;
+    [SerializeField] protected float restingRestoringBonus = 30f;
 
     public void SetPlayerMove(PlayerMove pm)
     {
@@ -23,8 +23,7 @@ public class Energy : Stat
         playerMove.OnJumped -= Jump;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (IsOwner)
         {
@@ -34,10 +33,11 @@ public class Energy : Stat
             }
             else
             {
-                ModifyValue((restoringSpeed + (playerMove.IsStandingStill() ? baseRestingRestoringBonus : 0)) * Time.deltaTime);
+                ModifyValue((restoringSpeed + (playerMove.IsStandingStill() ? restingRestoringBonus : 0)) * Time.deltaTime);
             }
         }
     }
+
     protected virtual void Jump()
     {
         ModifyValue(-jumpCost);
@@ -45,11 +45,13 @@ public class Energy : Stat
 
     protected virtual void ModifyValue(float value)
     {
-        float newValue = Mathf.Clamp(GetValue() + value, 0f, GetMaxValue());
-        SetValue(newValue);
-        base.OnChange(newValue);
+        if (IsOwner)
+        {
+            float newValue = Mathf.Clamp(GetValue() + value, 0f, GetMaxValue());
+            SetValue(newValue);
+            base.OnChange(newValue);
+        }
     }
-
     //  Read methods
     public bool AbleToJump()
     {

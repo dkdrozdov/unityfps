@@ -19,14 +19,24 @@ public class PlayerInitializer : NetworkBehaviour
     void Start()
     {
         InitializeUIManager();
+        GetPlayerComponents();
+
         InitializeHealth();
         InitializeDamageable();
-        // InitializeEnergy();
+        InitializeEnergy();
+        InitializePlayerMove();
+    }
+    void GetPlayerComponents()
+    {
+        health = player.GetComponent<Health>();
+        damageable = player.GetComponent<Destructible>();
+        energy = player.GetComponent<Energy>();
+        playerMove = player.GetComponent<PlayerMove>();
     }
     void InitializePlayerMove()
     {
-        playerMove = player.AddComponent<PlayerMove>();
         playerMove.SetEnergy(energy);
+        playerMove.SetController(characterController);
     }
     void InitializeUIManager()
     {
@@ -37,21 +47,23 @@ public class PlayerInitializer : NetworkBehaviour
     }
     void InitializeDamageable()
     {
-        damageable = player.GetComponent<Destructible>();
         damageable.SetHealthComponent(health);
     }
     void InitializeEnergy()
     {
-        energy = player.AddComponent<Energy>();
-        energy.SetMaxValue(maxEnergy);
-        energy.SetValue(maxEnergy);
-        uiManager.GetEnergyBar().SetStat(energy);
-        InitializePlayerMove();
+        if (IsServer)
+        {
+            energy.SetMaxValue(maxEnergy);
+            energy.SetValue(maxEnergy);
+        }
+        if (IsOwner)
+        {
+            uiManager.GetEnergyBar().SetStat(energy);
+        }
         energy.SetPlayerMove(playerMove);
     }
     void InitializeHealth()
     {
-        health = player.GetComponent<Health>();
         if (IsServer)
         {
             health.SetMaxValue(maxHP);

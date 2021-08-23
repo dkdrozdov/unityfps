@@ -3,28 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
 using MLAPI.NetworkVariable;
+using MLAPI.Messaging;
 
 public class PlayerMove : NetworkBehaviour
 {
-    public Energy energy;
+    Energy energy;
+    CharacterController controller;
+    [SerializeField] Transform groundCheck;
+    LayerMask groundMask;
     public delegate void JumpAction();
     public event JumpAction OnJumped;
-    public CharacterController controller;
-    public Transform groundCheck;
-    public float groundDistance = 0.4f;
-    public LayerMask groundMask;
+    float groundDistance = 0.4f;
     [SerializeField]
-    bool isGrounded;
+    NetworkVariableBool isGrounded = new NetworkVariableBool(new NetworkVariableSettings
+    {
+        WritePermission = NetworkVariablePermission.OwnerOnly,
+        ReadPermission = NetworkVariablePermission.Everyone
+    });
+    [SerializeField]
     NetworkVariableBool isRunning = new NetworkVariableBool(new NetworkVariableSettings
     {
         WritePermission = NetworkVariablePermission.OwnerOnly,
         ReadPermission = NetworkVariablePermission.Everyone
     }, false);
+    [SerializeField]
     NetworkVariableBool isStandingStill = new NetworkVariableBool(new NetworkVariableSettings
     {
         WritePermission = NetworkVariablePermission.OwnerOnly,
         ReadPermission = NetworkVariablePermission.Everyone
     }, true);
+    [SerializeField]
     NetworkVariableFloat currentSpeed = new NetworkVariableFloat(new NetworkVariableSettings
     {
         WritePermission = NetworkVariablePermission.OwnerOnly,
@@ -40,92 +48,112 @@ public class PlayerMove : NetworkBehaviour
         ReadPermission = NetworkVariablePermission.Everyone
     });
 
-    // void isGroundedValueChanged(bool prevValue, bool newValue)
-    // {
-    //     isGrounded.Value = newValue;
-    // }
-    // void isGroundedListenChanges()
-    // {
-    //     isGrounded.OnValueChanged += isGroundedValueChanged;
-    // }
-    // void isGroundedStopListen()
-    // {
-    //     isGrounded.OnValueChanged -= isGroundedValueChanged;
-    // }
-
-    // private void OnEnable()
-    // {
-    //     isGroundedListenChanges();
-    // }
-    // private void OnDisable()
-    // {
-    //     isGroundedStopListen();
-    // }
-    private void Awake()
+    public void SetGroundCheck(Transform gc)
     {
-        PlayerInitializer playerInitializer = gameObject.GetComponent<PlayerInitializer>();
-        groundCheck = playerInitializer.GetGroundCheck();
-        controller = playerInitializer.GetCharacterController();
-        groundMask = LayerMask.GetMask("Ground");
+        groundCheck = gc;
     }
-    // Start is called before the first frame update
+    public void SetController(CharacterController c)
+    {
+        controller = c;
+    }
     void Start()
     {
         currentSpeed.Value = baseSpeed;
+        groundMask = LayerMask.GetMask("Ground");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // if (IsServer)
-        // {
-        // }
+
         if (IsOwner)
         {
-            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+            SetIsGrounded(Physics.CheckSphere(groundCheck.position, groundDistance, groundMask));
+            SetCurrentSpeed(baseSpeed + (IsRunning() ? runBonusSpeed : 0));
+            if (IsGrounded() && GetGravityVelocity() < 0)
+            {
+                SetGravityVelocity(-4f);
+            }
+            if (!IsGrounded())
+            {
+                SetGravityVelocity(GetGravityVelocity() + gravity * Time.deltaTime);
+            }
             float x = Input.GetAxis("Horizontal");
             float z = Input.GetAxis("Vertical");
-            isStandingStill.Value = ((x == 0) && (z == 0) && isGrounded);
-
-            Vector3 move = transform.right * x + transform.forward * z;
+            SetIsStandingStill(((x == 0) && (z == 0) && IsGrounded()));
             if (Input.GetButtonDown("Run") && energy.AbleToRun())
             {
-                isRunning.Value = true;
+                SetIsRunning(true);
             }
             if (Input.GetButtonUp("Run") || (!energy.AbleToRun()))
             {
-                isRunning.Value = false;
+                SetIsRunning(false);
             }
+            Vector3 move = transform.right * x + transform.forward * z;
+            controller.Move(move * GetCurrentSpeed() * Time.deltaTime);
+            if (Input.GetButtonDown("Jump"))
+            {
+                if (IsGrounded() && energy.AbleToJump())
+                {
+                    gravityVelocity.Value = Mathf.Sqrt(jumpHeight * (-2f) * gravity);
+                    OnJumped?.Invoke();
+                }
+            }
+            controller.Move(Vector3.up * GetGravityVelocity() * Time.deltaTime);
+        }
+    }
 
-            controller.Move(move * (currentSpeed.Value + (isRunning.Value ? runBonusSpeed : 0)) * Time.deltaTime);
-
-            if (isGrounded && gravityVelocity.Value < 0)
-            {
-                gravityVelocity.Value = -4f;
-            }
-            if (!isGrounded)
-            {
-                gravityVelocity.Value += gravity * Time.deltaTime;
-            }
-            if (Input.GetButtonDown("Jump") && isGrounded && energy.AbleToJump())
-            {
-                gravityVelocity.Value = Mathf.Sqrt(jumpHeight * (-2f) * gravity);
-                OnJumped?.Invoke();
-            }
-            controller.Move(Vector3.up * gravityVelocity.Value * Time.deltaTime);
+    public float GetGravityVelocity()
+    {
+        return gravityVelocity.Value;
+    }
+    public void SetGravityVelocity(float newValue)
+    {
+        if (IsOwner)
+        {
+            gravityVelocity.Value = newValue;
+        }
+    }
+    public float GetCurrentSpeed()
+    {
+        return currentSpeed.Value;
+    }
+    public void SetCurrentSpeed(float newValue)
+    {
+        if (IsOwner)
+        {
+            currentSpeed.Value = newValue;
+        }
+        else
+        {
+            Debug.LogErrorFormat("SetCurrentSpeed called on client! PlayerMove {0}", this);
+        }
+    }
+    public bool IsGrounded()
+    {
+        return isGrounded.Value;
+    }
+    public void SetIsGrounded(bool newValue)
+    {
+        if (IsOwner)
+        {
+            isGrounded.Value = newValue;
         }
     }
     public bool IsRunning()
     {
         return isRunning.Value;
     }
-    public bool IsGrounded()
+    public void SetIsRunning(bool newValue)
     {
-        return isGrounded;
+        isRunning.Value = newValue;
     }
     public bool IsStandingStill()
     {
         return isStandingStill.Value;
+    }
+    public void SetIsStandingStill(bool newValue)
+    {
+        isStandingStill.Value = newValue;
     }
     public void SetEnergy(Energy energyInstance)
     {
