@@ -7,17 +7,11 @@ using MLAPI.Messaging;
 
 public class Health : Stat
 {
-
-    protected virtual void Start()
-    {
-        currentValue.Value = maxValue;
-    }
-
     public virtual void TakeDamage(float damage)
     {
-        currentValue.Value -= damage;
-        currentValue.Value = Mathf.Clamp(currentValue.Value, 0f, maxValue);
-        base.OnChange(currentValue.Value);
+        float newValue = Mathf.Clamp(GetValue() - damage, 0f, GetMaxValue());
+        base.SetValue(newValue);
+        base.OnChange(newValue);
     }
 
     private void Update()

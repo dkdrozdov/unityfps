@@ -5,10 +5,9 @@ using UnityEngine.UI;
 public class PlayerHealth : Health
 {
     private StatBar hpBar;
-    protected override void Start()
+    protected void Start()
     {
-        base.Start();
-        hpBar.SetMaxValue(maxValue);
+        // hpBar.SetMaxValue(maxValue.Value);
     }
     private void Update()
     {
@@ -20,7 +19,7 @@ public class PlayerHealth : Health
     override public void TakeDamage(float damage)
     {
         base.TakeDamage(damage);
-        hpBar.SetValue(currentValue.Value);
+        // hpBar.SetValue(currentValue.Value);
     }
 
     public void SetStatBar(StatBar bar)

@@ -4,7 +4,7 @@ using UnityEngine;
 using MLAPI;
 enum StartMode
 {
-    Client, Host
+    Client, Host, Server
 }
 public class EditorNetwork : MonoBehaviour
 {
@@ -24,6 +24,9 @@ public class EditorNetwork : MonoBehaviour
                     break;
                 case StartMode.Host:
                     netManager.StartHost();
+                    break;
+                case StartMode.Server:
+                    netManager.StartServer();
                     break;
                 default: break;
             }

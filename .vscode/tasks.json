@@ -10,6 +10,11 @@
             "label": "run client",
             "type": "shell",
             "command": "'/d/prog/unity/project/Build/New_Unity_Project/New Unity Project.exe' -mlapi client"
+        },
+        {
+            "label": "run server",
+            "type": "shell",
+            "command": "'/d/prog/unity/project/Build/New_Unity_Project/New Unity Project.exe' -mlapi server"
         }
     ],
 }

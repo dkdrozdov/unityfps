@@ -18,11 +18,6 @@ public class Energy : Stat
         playerMove = pm;
         playerMove.OnJumped += Jump;
     }
-    protected virtual void Awake()
-    {
-        PlayerInitializer playerInitializer = gameObject.GetComponent<PlayerInitializer>();
-        playerMove = playerInitializer.GetPlayerMove();
-    }
     private void OnDisable()
     {
         playerMove.OnJumped -= Jump;
@@ -50,18 +45,18 @@ public class Energy : Stat
 
     protected virtual void ModifyValue(float value)
     {
-        currentValue.Value += value;
-        currentValue.Value = Mathf.Clamp(currentValue.Value, 0f, maxValue);
-        base.OnChange(currentValue.Value);
+        float newValue = Mathf.Clamp(GetValue() + value, 0f, GetMaxValue());
+        SetValue(newValue);
+        base.OnChange(newValue);
     }
 
     //  Read methods
     public bool AbleToJump()
     {
-        return currentValue.Value - jumpCost >= 0;
+        return GetValue() - jumpCost >= 0;
     }
     public bool AbleToRun()
     {
-        return currentValue.Value - runCost * Time.deltaTime >= 0;
+        return GetValue() - runCost * Time.deltaTime >= 0;
     }
 }

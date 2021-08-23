@@ -18,18 +18,10 @@ public class PlayerInitializer : NetworkBehaviour
 
     void Start()
     {
-        if (IsOwner)
-        {
-            InitializeUIManager();
-            InitializeHealth();
-            InitializeDamageable();
-            InitializeEnergy();
-        }
-        else
-        {
-            playerMove.SetEnergy(player.AddComponent<Energy>());
-            damageable.SetHealthComponent(player.AddComponent<Health>());
-        }
+        InitializeUIManager();
+        InitializeHealth();
+        InitializeDamageable();
+        // InitializeEnergy();
     }
     void InitializePlayerMove()
     {
@@ -38,11 +30,14 @@ public class PlayerInitializer : NetworkBehaviour
     }
     void InitializeUIManager()
     {
-        uiManager = Instantiate(uiPrefab, Vector3.zero, Quaternion.identity).GetComponent<UIManager>();
+        if (IsOwner)
+        {
+            uiManager = Instantiate(uiPrefab, Vector3.zero, Quaternion.identity).GetComponent<UIManager>();
+        }
     }
     void InitializeDamageable()
     {
-        damageable = player.AddComponent<Destructible>();
+        damageable = player.GetComponent<Destructible>();
         damageable.SetHealthComponent(health);
     }
     void InitializeEnergy()
@@ -56,10 +51,16 @@ public class PlayerInitializer : NetworkBehaviour
     }
     void InitializeHealth()
     {
-        health = player.AddComponent<Health>();
-        health.SetMaxValue(maxHP);
-        health.SetValue(maxHP);
-        uiManager.GetHealthBar().SetStat(health);
+        health = player.GetComponent<Health>();
+        if (IsServer)
+        {
+            health.SetMaxValue(maxHP);
+            health.SetValue(maxHP);
+        }
+        if (IsOwner)
+        {
+            uiManager.GetHealthBar().SetStat(health);
+        }
     }
     public UIManager GetUI()
     {
